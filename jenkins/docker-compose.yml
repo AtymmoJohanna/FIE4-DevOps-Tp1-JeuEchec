@@ -1,14 +1,14 @@
 services:
   docker:
-  image: docker:dind
-  privileged: true
-  restart: always
-  ports:
-    - "2376:2376"
-  volumes:
+    image: docker:dind
+    privileged: true
+    restart: always
+    ports:
+      - "2376:2376"
+    volumes:
      - jenkins-docker-certs:/certs/client:rw
      - jenkins-data:/var/jenkins_home:rw
-  environment:
+    environment:
      - DOCKER_TLS_CERTDIR=/certs
 jenkins:
   build: .
