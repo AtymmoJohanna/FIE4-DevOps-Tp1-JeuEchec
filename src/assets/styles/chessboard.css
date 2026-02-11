@@ -239,3 +239,79 @@
 .pieces-list::-webkit-scrollbar-thumb:hover {
   background: #64748b;
 }
+
+.square.legal-move {
+  box-shadow: inset 0 0 0 4px #10b981;
+  position: relative;
+}
+
+.square.legal-move::after {
+  content: '';
+  position: absolute;
+  width: 30%;
+  height: 30%;
+  background-color: rgba(16, 185, 129, 0.5);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Styles pour les coups légaux */
+.square.legal-move {
+  position: relative;
+}
+
+.square.legal-move::after {
+  content: '';
+  position: absolute;
+  width: 35%;
+  height: 35%;
+  background-color: rgba(16, 185, 129, 0.6);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Bannière de statut du jeu */
+.game-status-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.status-text {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.turn-text {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.turn-text strong {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Alerte d'échec */
+.check-warning {
+  color: #ef4444;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

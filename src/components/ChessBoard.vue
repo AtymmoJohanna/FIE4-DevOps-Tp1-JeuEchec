@@ -2,7 +2,13 @@
   <div class="chess-app">
     <div class="header">
       <h1>Échiquier Interactif</h1>
-      <p>Cliquez sur une pièce puis sur une case pour la déplacer librement</p>
+      <p>Jeu d'échecs avec règles officielles</p>
+    </div>
+    
+    <!-- Indicateur de statut du jeu -->
+    <div class="game-status-banner">
+      <p class="status-text">{{ gameStatus }}</p>
+      <p class="turn-text">Au tour des : <strong>{{ currentTurn }}</strong></p>
     </div>
     
     <div class="main-content">
@@ -20,7 +26,8 @@
               :class="[
                 'square',
                 isLightSquare(rowIdx, colIdx) ? 'light' : 'dark',
-                isSelected(rowIdx, colIdx) ? 'selected' : ''
+                isSelected(rowIdx, colIdx) ? 'selected' : '',
+                isLegalMove(rowIdx, colIdx) ? 'legal-move' : ''
               ]"
             >
               {{ piece }}
@@ -36,6 +43,7 @@
             {{ selected ? '✓ Pièce sélectionnée' : 'Sélectionnez une pièce' }}
           </p>
           <p class="move-count">Coups joués: {{ moveHistory.length }}</p>
+          <p v-if="isInCheck" class="check-warning">⚠️ ÉCHEC !</p>
         </div>
 
         <div class="history-panel">
@@ -81,50 +89,96 @@ export default {
   data() {
     return {
       chessService: new ChessService(),
-      board: [],
-      selected: null
+    board: [],
+    selected: null,
+    legalMoves: [],
+    moveHistory: [],
+    gameStatus: '',
+    currentTurn: '',
+    isInCheck: false
     };
   },
-  computed: {
-    moveHistory() {
-      return this.chessService.getMoveHistory();
-    },
-    piecePositions() {
-      return this.chessService.getAllPiecePositions();
-    }
-  },
+  
   created() {
-    this.board = this.chessService.getBoard();
+    this.updateGameState();
   },
   methods: {
+    updateGameState() {
+      this.board = this.chessService.getBoard();
+      this.moveHistory = [...this.chessService.getMoveHistory()];
+      this.gameStatus = this.chessService.getGameStatus();
+      this.currentTurn =
+        this.chessService.getTurn() === "w" ? "Blancs" : "Noirs";
+      this.isInCheck = this.chessService.isInCheck();
+    },
     handleSquareClick(row, col) {
+      const piece = this.board[row][col];
+
       if (this.selected) {
-        // Déplacer la pièce
-        this.chessService.movePiece(this.selected.row, this.selected.col, row, col);
-        this.board = this.chessService.getBoard();
-        this.selected = null;
-      } else if (this.board[row][col]) {
-        // Sélectionner une pièce
-        this.selected = { row, col };
+        // Tenter de déplacer la pièce
+        const success = this.chessService.movePiece(
+          this.selected.row,
+          this.selected.col,
+          row,
+          col
+        );
+
+        if (success) {
+          // Mouvement réussi
+          this.selected = null;
+  this.legalMoves = [];
+  this.updateGameState();
+        } else {
+          // Mouvement illégal - sélectionner autre pièce du joueur courant
+          if (piece && this.isCurrentPlayerPiece(piece)) {
+            this.selected = { row, col };
+            this.legalMoves = this.chessService.getLegalMoves(row, col);
+          } else {
+            this.selected = null;
+            this.legalMoves = [];
+          }
+        }
+      } else {
+        // Sélectionner une pièce du joueur courant
+        if (piece && this.isCurrentPlayerPiece(piece)) {
+          this.selected = { row, col };
+          this.legalMoves = this.chessService.getLegalMoves(row, col);
+        }
       }
     },
-    
-    isSelected(row, col) {
-      return this.selected && this.selected.row === row && this.selected.col === col;
+
+    isCurrentPlayerPiece(piece) {
+      const whitePieces = ['♔', '♕', '♖', '♗', '♘', '♙'];
+      const isWhite = whitePieces.includes(piece);
+      return (isWhite && this.chessService.getTurn() === 'w') ||
+             (!isWhite && this.chessService.getTurn() === 'b');
     },
-    
+
+    isSelected(row, col) {
+      return this.selected &&
+             this.selected.row === row &&
+             this.selected.col === col;
+    },
+
+    isLegalMove(row, col) {
+      return this.legalMoves.some(
+        move => move.row === row && move.col === col
+      );
+    },
+
     isLightSquare(row, col) {
       return (row + col) % 2 === 0;
     },
-    
+
     resetBoard() {
       this.chessService.reset();
-      this.board = this.chessService.getBoard();
-      this.selected = null;
+  this.selected = null;
+  this.legalMoves = [];
+  this.updateGameState();
     },
 
     formatMove(move) {
-      return `${move.piece} : ${move.from} → ${move.to}`;
+      return move.san || `${move.from} → ${move.to}`;
     }
   }
 };
