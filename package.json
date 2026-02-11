@@ -6,15 +6,19 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test:unit": "vue-cli-service test:unit",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed",
-    "test:e2e:debug": "playwright test --debug"
+    "test": "npm run test:unit",
+    "test:unit": "vue-cli-service test:unit --reporters=default --reporters=jest-html-reporter",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "core-js": "^3.8.3",
     "vue": "^3.2.13"
+  },
+  "jestHtmlReporter": {
+    "pageTitle": "Rapport de tests unitaires",
+    "outputPath": "reports/unit-tests/report.html",
+    "includeFailureMsg": true,
+    "includeConsoleLog": true
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
@@ -29,7 +33,9 @@
     "babel-jest": "^27.0.6",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
-    "jest": "^27.0.6"
+    "jest": "^27.0.6",
+    "jest-html-reporter": "^4.3.0",
+    "netlify-cli": "^23.15.1"
   },
   "eslintConfig": {
     "root": true,
