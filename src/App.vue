@@ -2,6 +2,7 @@
   <div id="app">
     <ChessBoard />
   </div>
+  
 </template>
 
 <script>
